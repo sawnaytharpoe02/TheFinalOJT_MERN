@@ -7,8 +7,15 @@ import {
 	unfollowUser,
 } from '../controllers/users.controller';
 const router = Router();
+import { verifyToken } from '../middlewares/auth';
 
-router.route('/:id').get(getUser).put(updateUser).delete(deleteUser);
+//query a user
+router.get('/', getUser);
+
+router
+	.route('/:id')
+	.put([verifyToken, updateUser])
+	.delete([verifyToken, deleteUser]);
 
 //follow a user
 router.put('/:id/follow', followUser);

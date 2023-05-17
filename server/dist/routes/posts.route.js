@@ -12,5 +12,6 @@ router
     .put([auth_1.verifyToken, posts_controller_1.updatePost])
     .delete([auth_1.verifyToken, posts_controller_1.deletePost]);
 router.put('/:id/like', posts_controller_1.likeDislikePost);
+router.get('/profile/:username', posts_controller_1.getUserPosts);
 router.get('/timeline/:userId', posts_controller_1.getTimelinePosts);
 exports.default = router;

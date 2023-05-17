@@ -81,6 +81,17 @@ const getPost = async (req: Request, res: Response) => {
 	}
 };
 
+// GET USER'S POSTS
+const getUserPosts = async (req: Request, res: Response) => {
+	try {
+		const user = await User.findOne({ username: req.params.username });
+		const post = await Post.find({ userId: user._id });
+		res.status(200).json(post);
+	} catch (err: any) {
+		res.status(404).json({ message: err.message });
+	}
+};
+
 // GET TIMELINE POSTS
 const getTimelinePosts = async (req: Request, res: Response) => {
 	try {
@@ -92,7 +103,7 @@ const getTimelinePosts = async (req: Request, res: Response) => {
 				return Post.find({ userId: friendId });
 			})
 		);
-		res.json(userPosts.concat(...friendPosts));
+		res.status(200).json(userPosts.concat(...friendPosts));
 	} catch (err: any) {
 		res.status(404).json({ message: err.message });
 	}
@@ -104,5 +115,6 @@ export {
 	deletePost,
 	likeDislikePost,
 	getPost,
+	getUserPosts,
 	getTimelinePosts,
 };

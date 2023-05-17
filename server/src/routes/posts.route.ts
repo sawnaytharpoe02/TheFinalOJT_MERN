@@ -6,6 +6,7 @@ import {
 	deletePost,
 	getTimelinePosts,
 	likeDislikePost,
+	getUserPosts,
 } from '../controllers/posts.controller';
 import { verifyToken } from '../middlewares/auth';
 import { uploadSingleFile } from '../middlewares/upload';
@@ -23,6 +24,9 @@ router
 
 //like / dislike a post
 router.put('/:id/like', likeDislikePost);
+
+//get user's posts
+router.get('/profile/:username', getUserPosts);
 
 //get timeline posts
 router.get('/timeline/:userId', getTimelinePosts);

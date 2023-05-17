@@ -70,8 +70,12 @@ const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 });
 exports.deleteUser = deleteUser;
 const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.query.userId;
+    const username = req.query.username;
     try {
-        const user = yield User_1.default.findById(req.params.id);
+        const user = userId
+            ? yield User_1.default.findById(userId)
+            : yield User_1.default.findOne({ username: username });
         const _a = user._doc, { password, updatedAt } = _a, other = __rest(_a, ["password", "updatedAt"]);
         res.status(200).json(other);
     }

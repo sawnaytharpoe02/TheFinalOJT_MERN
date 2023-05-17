@@ -44,9 +44,15 @@ const deleteUser = async (req: Request, res: Response) => {
 };
 
 // GET USER
+// lh:8800/api/users?username= || lh:8800/api/users?userId=
 const getUser = async (req: Request, res: Response) => {
+	const userId = req.query.userId;
+	const username = req.query.username;
 	try {
-		const user = await User.findById(req.params.id);
+		const user = userId
+			? await User.findById(userId)
+			: await User.findOne({ username: username });
+
 		const { password, updatedAt, ...other } = user._doc;
 		res.status(200).json(other);
 	} catch (err) {

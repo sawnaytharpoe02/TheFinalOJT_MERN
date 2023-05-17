@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import cors from 'cors';
 import fileUpload from 'express-fileupload';
+import path from 'path';
 
 import authRoute from './routes/auth.route';
 import userRoute from './routes/users.route';
@@ -20,6 +21,15 @@ app.use(morgan('common'));
 app.use(cors());
 app.use(fileUpload());
 app.use(express.static('public'));
+
+const _filename = path.resolve(
+	path.dirname(require.resolve(process.argv[1])),
+	process.argv[1]
+);
+const _dirname = path.dirname(_filename);
+const public_dir = _dirname.slice(0, _dirname.lastIndexOf('\\dist'));
+
+app.use('/uploads', express.static(path.join(public_dir, 'uploads')));
 
 app.use('/api/auth', authRoute);
 app.use('/api/users', userRoute);

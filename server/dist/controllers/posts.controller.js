@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTimelinePosts = exports.getPost = exports.likeDislikePost = exports.deletePost = exports.updatePost = exports.createPost = void 0;
+exports.getTimelinePosts = exports.getUserPosts = exports.getPost = exports.likeDislikePost = exports.deletePost = exports.updatePost = exports.createPost = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const Post_1 = __importDefault(require("../models/Post"));
 const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -93,6 +93,17 @@ const getPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getPost = getPost;
+const getUserPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield User_1.default.findOne({ username: req.params.username });
+        const post = yield Post_1.default.find({ userId: user._id });
+        res.status(200).json(post);
+    }
+    catch (err) {
+        res.status(404).json({ message: err.message });
+    }
+});
+exports.getUserPosts = getUserPosts;
 const getTimelinePosts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const currentUser = yield User_1.default.findById(req.params.userId);
@@ -100,7 +111,7 @@ const getTimelinePosts = (req, res) => __awaiter(void 0, void 0, void 0, functio
         const friendPosts = yield Promise.all(currentUser.followings.map((friendId) => {
             return Post_1.default.find({ userId: friendId });
         }));
-        res.json(userPosts.concat(...friendPosts));
+        res.status(200).json(userPosts.concat(...friendPosts));
     }
     catch (err) {
         res.status(404).json({ message: err.message });
