@@ -3,10 +3,12 @@ import './login.css';
 import { AuthContext } from '../../context/AuthContext';
 import { loginCall } from '../../apiCalls';
 import { CircularProgress } from '@mui/material';
+import { useNavigate } from 'react-router';
 
 const Login = () => {
 	const email = useRef();
 	const password = useRef();
+	const navigate = useNavigate();
 
 	const { user, isFetching, error, dispatch } = useContext(AuthContext);
 
@@ -16,6 +18,8 @@ const Login = () => {
 			{ email: email.current.value, password: password.current.value },
 			dispatch
 		);
+		console.log(user);
+		navigate('/');
 	};
 
 	return (

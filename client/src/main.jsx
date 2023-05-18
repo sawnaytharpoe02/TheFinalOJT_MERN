@@ -5,12 +5,12 @@ import './index.css';
 // import { BrowserRouter } from 'react-router-dom';
 import { AuthContextProvider } from './context/AuthContext.jsx';
 import { RouterProvider } from 'react-router-dom';
-import AppRouter from './routes/AppRouter';
+import router from './routes/routes';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
 	// <BrowserRouter>
 	<AuthContextProvider>
-		<RouterProvider router={<AppRouter />} />
+		<RouterProvider router={router} />
 		{/* <App /> */}
 	</AuthContextProvider>
 	// </BrowserRouter>
