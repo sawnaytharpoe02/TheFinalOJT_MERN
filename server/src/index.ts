@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import cors from 'cors';
-import fileUpload from 'express-fileupload';
+import multer from 'multer';
 import path from 'path';
 
 import authRoute from './routes/auth.route';
@@ -19,17 +19,35 @@ app.use(express.json());
 app.use(helmet());
 app.use(morgan('common'));
 app.use(cors());
-app.use(fileUpload());
-app.use(express.static('public'));
+// app.use(express.static('public'));
 
 const _filename = path.resolve(
-	path.dirname(require.resolve(process.argv[1])),
-	process.argv[1]
+  path.dirname(require.resolve(process.argv[1])),
+  process.argv[1]
 );
-const _dirname = path.dirname(_filename);
-const public_dir = _dirname.slice(0, _dirname.lastIndexOf('\\dist'));
+const _dirname: string = path.dirname(_filename);
+const public_dir: string = _dirname.slice(0, _dirname.lastIndexOf('\\dist'));
 
-app.use('/uploads', express.static(path.join(public_dir, 'uploads')));
+// multer storage
+app.use('/images', express.static(path.join(public_dir, 'public/images')));
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'public/images');
+  },
+  filename: (req, file, cb) => {
+    cb(null, req.body.name);
+  },
+});
+
+const upload = multer({ storage });
+app.post('/api/upload', upload.single('file'), (req, res) => {
+  try {
+    return res.status(200).json('File uploaded Successfully');
+  } catch (err) {
+    console.log(err);
+  }
+});
 
 app.use('/api/auth', authRoute);
 app.use('/api/users', userRoute);
@@ -41,13 +59,13 @@ const PORT = process.env.PORT;
 const options = { useNewUrlParser: true, useUnifiedTopology: true };
 
 mongoose
-	.connect(process.env.MONGO_URL!, options)
-	.then(() => {
-		console.log('connected to mongo database');
-		app.listen(PORT, () => {
-			console.log(`⚡️[server]: Server is running at http://localhost:${PORT}`);
-		});
-	})
-	.catch((error: any) => {
-		console.log(`${error}: did not connect`);
-	});
+  .connect(process.env.MONGO_URL!, options)
+  .then(() => {
+    console.log('connected to mongo database');
+    app.listen(PORT, () => {
+      console.log(`⚡️[server]: Server is running at http://localhost:${PORT}`);
+    });
+  })
+  .catch((error: any) => {
+    console.log(`${error}: did not connect`);
+  });

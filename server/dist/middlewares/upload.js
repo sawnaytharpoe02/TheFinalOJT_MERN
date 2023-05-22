@@ -16,5 +16,6 @@ const uploadSingleFile = (req, res, next) => {
     const file_name = new Date().valueOf() + '_' + file.name;
     file.mv(`uploads/${file_name}`);
     req.body['img'] = file_name;
+    next();
 };
 exports.uploadSingleFile = uploadSingleFile;

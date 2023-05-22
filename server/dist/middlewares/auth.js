@@ -16,7 +16,7 @@ exports.verifyToken = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const verifyToken = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let token = req.header('Authorization');
+        let token = yield req.headers.authorization;
         if (!token) {
             return res.status(403).send('Access denied.');
         }

@@ -9,7 +9,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const helmet_1 = __importDefault(require("helmet"));
 const morgan_1 = __importDefault(require("morgan"));
 const cors_1 = __importDefault(require("cors"));
-const express_fileupload_1 = __importDefault(require("express-fileupload"));
+const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
 const auth_route_1 = __importDefault(require("./routes/auth.route"));
 const users_route_1 = __importDefault(require("./routes/users.route"));
@@ -20,12 +20,27 @@ app.use(express_1.default.json());
 app.use((0, helmet_1.default)());
 app.use((0, morgan_1.default)('common'));
 app.use((0, cors_1.default)());
-app.use((0, express_fileupload_1.default)());
-app.use(express_1.default.static('public'));
 const _filename = path_1.default.resolve(path_1.default.dirname(require.resolve(process.argv[1])), process.argv[1]);
 const _dirname = path_1.default.dirname(_filename);
 const public_dir = _dirname.slice(0, _dirname.lastIndexOf('\\dist'));
-app.use('/uploads', express_1.default.static(path_1.default.join(public_dir, 'uploads')));
+app.use('/images', express_1.default.static(path_1.default.join(public_dir, 'public/images')));
+const storage = multer_1.default.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'public/images');
+    },
+    filename: (req, file, cb) => {
+        cb(null, req.body.name);
+    },
+});
+const upload = (0, multer_1.default)({ storage });
+app.post('/api/upload', upload.single('file'), (req, res) => {
+    try {
+        return res.status(200).json('File uploaded Successfully');
+    }
+    catch (err) {
+        console.log(err);
+    }
+});
 app.use('/api/auth', auth_route_1.default);
 app.use('/api/users', users_route_1.default);
 app.use('/api/posts', posts_route_1.default);
