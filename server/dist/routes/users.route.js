@@ -5,6 +5,7 @@ const users_controller_1 = require("../controllers/users.controller");
 const router = (0, express_1.Router)();
 const auth_1 = require("../middlewares/auth");
 router.get('/', users_controller_1.getUser);
+router.get('/friends/:userId', users_controller_1.getFriendsList);
 router
     .route('/:id')
     .put([auth_1.verifyToken, users_controller_1.updateUser])

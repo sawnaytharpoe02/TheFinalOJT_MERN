@@ -1,16 +1,21 @@
 import './share.css';
-import { PermMedia, Label, Room, EmojiEmotions } from '@mui/icons-material';
+import {
+  PermMedia,
+  Label,
+  Room,
+  EmojiEmotions,
+  Cancel,
+} from '@mui/icons-material';
 import { useContext, useRef, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import axios from 'axios';
 
 export default function Share() {
   const PF = import.meta.env.VITE_REACT_APP_PUBLIC_FOLDER;
+
   const { user: currentUser } = useContext(AuthContext);
   const desc = useRef();
   const [file, setFile] = useState(null);
-
-  console.log(currentUser.token);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,6 +23,7 @@ export default function Share() {
       userId: currentUser.user._id,
       desc: desc.current.value,
     };
+
     if (file) {
       const data = new FormData();
       const fileName = Date.now() + file.name;
@@ -31,6 +37,7 @@ export default function Share() {
         console.log(err);
       }
     }
+
     try {
       const config = {
         headers: {
@@ -38,6 +45,7 @@ export default function Share() {
         },
       };
       await axios.post('http://localhost:8800/api/posts', newPost, config);
+      window.location.reload();
     } catch (err) {
       console.log(err);
     }
@@ -58,13 +66,19 @@ export default function Share() {
           />
           <input
             placeholder={
-              "What's in your mind " + currentUser.user.username + '?'
+              "What's in your mind " + currentUser?.user.username + '?'
             }
             className="shareInput"
             ref={desc}
           />
         </div>
         <hr className="shareHr" />
+        {file && (
+          <div className="shareImgContainer">
+            <img src={URL.createObjectURL(file)} alt="" className="shareImg" />
+            <Cancel className="shareCancelImg" onClick={() => setFile(null)} />
+          </div>
+        )}
         <form className="shareBottom" onSubmit={handleSubmit}>
           <div className="shareOptions">
             <label htmlFor="file" className="shareOption">

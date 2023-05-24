@@ -9,7 +9,6 @@ import {
   getUserPosts,
 } from '../controllers/posts.controller';
 import { verifyToken } from '../middlewares/auth';
-// import { uploadSingleFile } from '../middlewares/upload';
 
 const router = Router();
 

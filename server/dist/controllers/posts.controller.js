@@ -37,7 +37,7 @@ const updatePost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     try {
         const post = yield Post_1.default.findById(req.params.id);
         if (post.userId === req.body.userId) {
-            yield post.updateOne({ $set: req.body });
+            yield Post_1.default.findByIdAndUpdate(req.params.id, req.body, { new: true });
             res.status(200).json('the post has been updated');
         }
         else {
@@ -53,7 +53,7 @@ const deletePost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     try {
         const post = yield Post_1.default.findById(req.params.id);
         if (post.userId === req.body.userId) {
-            yield post.deleteOne();
+            yield Post_1.default.findByIdAndDelete(post._id);
             res.status(200).json('the post has been deleted');
         }
         else {
@@ -107,9 +107,11 @@ exports.getUserPosts = getUserPosts;
 const getTimelinePosts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const currentUser = yield User_1.default.findById(req.params.userId);
-        const userPosts = yield Post_1.default.find({ userId: currentUser._id });
+        const userPosts = yield Post_1.default.find({ userId: currentUser._id }).sort({
+            createdAt: -1,
+        });
         const friendPosts = yield Promise.all(currentUser.followings.map((friendId) => {
-            return Post_1.default.find({ userId: friendId });
+            return Post_1.default.find({ userId: friendId }).sort({ createdAt: -1 });
         }));
         res.status(200).json(userPosts.concat(...friendPosts));
     }

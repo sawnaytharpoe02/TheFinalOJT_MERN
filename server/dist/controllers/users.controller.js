@@ -23,7 +23,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.unfollowUser = exports.followUser = exports.deleteUser = exports.updateUser = exports.getUser = void 0;
+exports.getFriendsList = exports.unfollowUser = exports.followUser = exports.deleteUser = exports.updateUser = exports.getUser = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -134,3 +134,21 @@ const unfollowUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.unfollowUser = unfollowUser;
+const getFriendsList = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield User_1.default.findById(req.params.userId);
+        const friends = yield Promise.all(user.followings.map((friendId) => {
+            return User_1.default.findById(friendId);
+        }));
+        let friendList = [];
+        friends.map((friend) => {
+            const { _id, username, profilePicture } = friend;
+            friendList.push({ _id, username, profilePicture });
+        });
+        res.status(200).json(friendList);
+    }
+    catch (err) {
+        res.status(500).json(err);
+    }
+});
+exports.getFriendsList = getFriendsList;

@@ -8,6 +8,7 @@ import axios from 'axios';
 const Feed = ({ username }) => {
   const [posts, setPosts] = useState([]);
   const { user } = useContext(AuthContext);
+
   const fetchPosts = async () => {
     try {
       const res = username
@@ -28,7 +29,7 @@ const Feed = ({ username }) => {
   return (
     <div className="feed">
       <div className="feedWrapper">
-        <Share />
+        {(!username || username === user.user.username) && <Share />}
         {posts.map((post) => (
           <Post key={post._id} post={post} />
         ))}
