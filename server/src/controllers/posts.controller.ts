@@ -86,7 +86,7 @@ const getPost = async (req: Request, res: Response) => {
 const getUserPosts = async (req: Request, res: Response) => {
   try {
     const user = await User.findOne({ username: req.params.username });
-    const post = await Post.find({ userId: user._id });
+    const post = await Post.find({ userId: user._id }).sort({ createdAt: -1 });
     res.status(200).json(post);
   } catch (err: any) {
     res.status(404).json({ message: err.message });
@@ -112,6 +112,63 @@ const getTimelinePosts = async (req: Request, res: Response) => {
   }
 };
 
+// COMMENT
+const comment = async (req: Request, res: Response) => {
+  const postId = req.params.postId;
+  const { text, postedBy } = req.body;
+  try {
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+    const newComment = {
+      text,
+      postedBy,
+    };
+
+    post.comments.push(newComment);
+    await post.save();
+
+    res.status(201).json({ message: 'Comment added successfully' });
+  } catch (err: any) {
+    res.status(500).json({
+      message: 'An error occurred while adding the comment',
+      error: err.message,
+    });
+  }
+};
+
+// UNCOMMENT
+const uncomment = async (req: Request, res: Response) => {
+  const postId = req.params.postId;
+  const commentId = req.params.commentId;
+  try {
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    const comment = post.comments.find(
+      (comment: any) => comment._id.toString() === commentId
+    );
+    if (!comment) {
+      return res.status(404).json({ error: 'Comment not found' });
+    }
+
+    post.comments = post.comments.filter(
+      (comment: any) => comment._id.toString() !== commentId
+    );
+    await post.save();
+
+    res.status(200).json({ message: 'Comment deleted successfully' });
+  } catch (err: any) {
+    res.status(500).json({
+      message: 'An error occurred while deleting the comment',
+      error: err.message,
+    });
+  }
+};
+
 export {
   createPost,
   updatePost,
@@ -120,4 +177,6 @@ export {
   getPost,
   getUserPosts,
   getTimelinePosts,
+  comment,
+  uncomment,
 };

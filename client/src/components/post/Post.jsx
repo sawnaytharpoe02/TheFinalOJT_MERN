@@ -1,5 +1,11 @@
 import './post.css';
-import { MoreVert, PermMedia, Cancel } from '@mui/icons-material';
+import {
+  MoreVert,
+  PermMedia,
+  Cancel,
+  Delete,
+  Telegram,
+} from '@mui/icons-material';
 import { useContext, useEffect, useState, useRef } from 'react';
 import { format } from 'timeago.js';
 import { Link } from 'react-router-dom';
@@ -21,27 +27,10 @@ export default function Post({ post }) {
   const [user, setUser] = useState({});
   const { user: currentUser } = useContext(AuthContext);
 
+  // like unlike
   useEffect(() => {
     setIsLiked(post.likes.includes(currentUser?.user._id));
   }, [currentUser?.user._id, post.likes]);
-
-  // fetch user
-  const fetchUser = async () => {
-    try {
-      const res = await axios.get(
-        `http://localhost:8800/api/users?userId=${post.userId}`
-      );
-      setUser(res.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    fetchUser();
-  }, [post.userId]);
-
-  // like unlike handler
   const likeHandler = () => {
     try {
       axios.put(`http://localhost:8800/api/posts/${post._id}/like`, {
@@ -54,6 +43,21 @@ export default function Post({ post }) {
     setIsLiked(!isLiked);
   };
 
+  // fetch user
+  const fetchUser = async () => {
+    try {
+      const res = await axios.get(
+        `http://localhost:8800/api/users?userId=${post.userId}`
+      );
+      setUser(res.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    fetchUser();
+  }, [post.userId]);
+
   // handle delete edit post
   const [showDropdown, setShowDropdown] = useState(false);
   const [open, setOpen] = useState(false);
@@ -63,11 +67,9 @@ export default function Post({ post }) {
   const handleClickOpen = () => {
     setOpen(true);
   };
-
   const handleClose = () => {
     setOpen(false);
   };
-
   const handleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
@@ -125,6 +127,48 @@ export default function Post({ post }) {
       window.location.reload();
     } catch (err) {
       console.log(err);
+    }
+  };
+
+  // handle comment umcomment post
+  const [commentText, setCommentText] = useState('');
+  const [comments, setComments] = useState([]);
+  const [showComments, setShowComments] = useState(false);
+
+  useEffect(() => {
+    setComments(post.comments);
+  }, [post]);
+
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const data = {
+        text: commentText,
+        postedBy: currentUser.user._id,
+      };
+      const response = await axios.post(
+        `http://localhost:8800/api/posts/${post._id}/comments`,
+        data
+      );
+
+      setCommentText('');
+      setComments([...comments, response.data.comment]);
+      window.location.reload();
+    } catch (error) {
+      console.error(err);
+    }
+  };
+
+  const handleCommentDelete = async (commentId) => {
+    try {
+      await axios.delete(
+        `http://localhost:8800/api/posts/${post._id}/comments/${commentId}`
+      );
+
+      setComments(comments.filter((comment) => comment._id !== commentId));
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -237,9 +281,60 @@ export default function Post({ post }) {
             <span className="postLikeCounter">{like} people like it</span>
           </div>
           <div className="postBottomRight">
-            <span className="postCommentText">{post?.comment} comments</span>
+            <span
+              className="postCommentText"
+              onClick={() => setShowComments(!showComments)}>
+              {post?.comments.length !== 0
+                ? post.comments.length + 'comments'
+                : 'comments'}
+            </span>
           </div>
         </div>
+
+        {showComments && (
+          <div>
+            <form
+              onSubmit={handleCommentSubmit}
+              className="submit_comment_container">
+              <input
+                type="text"
+                className="input_comment_text"
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder="Add a comment"
+              />
+              <button type="submit" className="submitCommentBtn">
+                <Telegram />
+              </button>
+            </form>
+
+            {comments.length !== 0 && (
+              <ul className="comment_container">
+                {comments.map((comment) => (
+                  <li key={comment._id}>
+                    <div className="comment_user_container">
+                      <img
+                        src={
+                          currentUser.user.profilePicture
+                            ? PF + currentUser.user.profilePicture
+                            : PF + 'person/no_avatar.jpg'
+                        }
+                        alt=""
+                      />
+                      <div>
+                        <h4>{currentUser.user.username}</h4>
+                        <p className="comment_text">{comment.text}</p>
+                      </div>
+                    </div>
+                    <button onClick={() => handleCommentDelete(comment._id)}>
+                      <Delete className="deleteCommentBtn" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -7,6 +7,8 @@ import {
   getTimelinePosts,
   likeDislikePost,
   getUserPosts,
+  comment,
+  uncomment,
 } from '../controllers/posts.controller';
 import { verifyToken } from '../middlewares/auth';
 
@@ -29,5 +31,9 @@ router.get('/profile/:username', getUserPosts);
 
 //get timeline posts
 router.get('/timeline/:userId', getTimelinePosts);
+
+//comment , uncomment
+router.post('/:postId/comments', comment);
+router.delete('/:postId/comments/:commentId', uncomment);
 
 export default router;

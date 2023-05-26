@@ -13,4 +13,6 @@ router
 router.put('/:id/like', posts_controller_1.likeDislikePost);
 router.get('/profile/:username', posts_controller_1.getUserPosts);
 router.get('/timeline/:userId', posts_controller_1.getTimelinePosts);
+router.post('/:postId/comments', posts_controller_1.comment);
+router.delete('/:postId/comments/:commentId', posts_controller_1.uncomment);
 exports.default = router;
